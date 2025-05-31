@@ -31,8 +31,6 @@ author:
     email: your.email@example.com
 
 normative:
-  RFC2119:
-  RFC8174:
   RFC9112:
   RFC6455:
   RFC7838:
@@ -44,7 +42,7 @@ informative:
   RFC9113:
   RFC9114:
 
----
+--- abstract
 
 *Bi‑directional HTTP over Streams* (bHTTP‑Streams) defines a minimal framing
 mechanism that enables both endpoints of a single, long‑lived, reliable byte
@@ -55,7 +53,7 @@ raw TCP.  A Generic‑Stream profile reuses the TCP binding for any ordered
 full‑duplex byte stream.  Optional discovery facilities allow endpoints to
 upgrade to bHTTP‑Streams; otherwise the connection remains plain HTTP.
 
----
+--- middle
 
 # Introduction
 
@@ -176,7 +174,7 @@ security mechanisms.  Standard HTTP authentication remains unchanged.
 | ----------- | ------------- |
 | bhttp/1     | This document |
 
----
+--- back
 
 # Acknowledgments
 {:numbered="false"}
