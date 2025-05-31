@@ -1,24 +1,4 @@
 ---
-###
-# Internet-Draft Markdown Template
-#
-# Rename this file from draft-todo-yourname-protocol.md to get started.
-# Draft name format is "draft-<yourname>-<workgroup>-<name>.md".
-#
-# For initial setup, you only need to edit the first block of fields.
-# Only "title" needs to be changed; delete "abbrev" if your title is short.
-# Any other content can be edited, but be careful not to introduce errors.
-# Some fields will be set automatically during setup if they are unchanged.
-#
-# Don't include "-00" or "-latest" in the filename.
-# Labels in the form draft-<yourname>-<workgroup>-<name>-latest are used by
-# the tools to refer to the current version; see "docname" for example.
-#
-# This template uses kramdown-rfc: https://github.com/cabo/kramdown-rfc
-# You can replace the entire file if you prefer a different format.
-# Change the file extension to match the format (.xml for XML, etc...)
-#
-###
 title: "Bi‑directional HTTP over Streams"
 abbrev: "bhttp‑Streams"
 category: info
@@ -51,22 +31,20 @@ author:
     email: your.email@example.com
 
 normative:
-RFC2119:
-RFC8174:
-RFC9112:
-RFC6455:
-RFC7838:
-RFC8441:
-RFC9000:
-RFC9220:
+  RFC2119:
+  RFC8174:
+  RFC9112:
+  RFC6455:
+  RFC7838:
+  RFC8441:
+  RFC9000:
+  RFC9220:
 
 informative:
-RFC9113:
-RFC9114:
+  RFC9113:
+  RFC9114:
 
-...
-
-\--- abstract
+---
 
 *Bi‑directional HTTP over Streams* (bHTTP‑Streams) defines a minimal framing
 mechanism that enables both endpoints of a single, long‑lived, reliable byte
@@ -77,15 +55,15 @@ raw TCP.  A Generic‑Stream profile reuses the TCP binding for any ordered
 full‑duplex byte stream.  Optional discovery facilities allow endpoints to
 upgrade to bHTTP‑Streams; otherwise the connection remains plain HTTP.
 
-\--- middle
+---
 
 # Introduction
 
-HTTP’s traditional client‑server model restricts request initiation to one
+HTTP's traditional client‑server model restricts request initiation to one
 side of the connection.  Modern agent and server‑to‑server workflows require a
 symmetric model where either peer can originate requests.  bHTTP‑Streams
-accomplishes this by borrowing WebSocket’s frame structure while retaining
-unaltered HTTP/1.1 semantics \[@RFC9112].
+accomplishes this by borrowing WebSocket's frame structure while retaining
+unaltered HTTP/1.1 semantics {{RFC9112}}.
 
 The goal mirrors HTTP/2 and HTTP/3: replace only the connection/framing layer
 while leaving the semantics untouched.  Compared with HTTP/2 multiplexing,
@@ -96,22 +74,22 @@ providing a lowest‑friction upgrade path for simple bidirectional scenarios.
 
 {::boilerplate bcp14-tagged}
 
-*Plain HTTP mode* — classic request–response over HTTP/1.1.
+*Plain HTTP mode* — classic request–response over HTTP/1.1.
 
-*bHTTP mode* — operation after successful upgrade to bHTTP‑Streams.
+*bHTTP mode* — operation after successful upgrade to bHTTP‑Streams.
 
 # Message Model
 
 A complete HTTP message consists of
 
 * a **header block**: request‑line or status‑line plus headers, UTF‑8 encoded,
-  terminated by CRLF CRLF;
+  terminated by CRLF CRLF;
 * a **body** indicated by either `Content‑Length` or
   `Transfer‑Encoding: chunked`.
 
 # Frame Format
 
-bHTTP‑Streams reuses the data frame structure of WebSocket \[@RFC6455] §5 with
+bHTTP‑Streams reuses the data frame structure of WebSocket {{RFC6455}} §5 with
 these constraints:
 
 * Masking is never applied.
@@ -123,14 +101,14 @@ these constraints:
 ## Fixed‑Length Bodies
 
 If `Content‑Length` is present, the body is conveyed in **one** binary frame of
-that length.  `Content‑Length: 0` omits the binary frame.
+that length.  `Content‑Length: 0` omits the binary frame.
 
 ## Chunked Bodies
 
 For `Transfer‑Encoding: chunked`, the body is a sequence of binary frames
 followed by a zero‑length final chunk.  An optional trailer section MAY be
 sent in one text frame immediately after the final chunk, formatted per
-\[@RFC9112] §6.5.
+{{RFC9112}} §6.5.
 
 # Transport Bindings
 
@@ -148,16 +126,16 @@ handshake, masking, or control frames.
 ## Generic‑Stream Binding
 
 Any full‑duplex, ordered byte stream (e.g., TLS, QUIC application stream,
-UNIX domain socket) can carry the TCP binding unmodified.
+UNIX domain socket) can carry the TCP binding unmodified.
 
 # Capability Advertisement and Optional Upgrade
 
 Endpoints MAY advertise bHTTP‑Streams via one or more of:
 
 * WebSocket sub‑protocol `bhttp-streams`;
-* TLS ALPN token `bhttp/1`;
+* TLS ALPN token `bhttp/1`;
 * `Upgrade: bhttp-streams` header;
-* `Alt‑Svc: bhttp="…"` record \[@RFC7838].
+* `Alt‑Svc: bhttp="…"` record {{RFC7838}}.
 
 If the client elects to upgrade, bidirectional request initiation becomes
 available; otherwise the connection remains plain HTTP.
@@ -167,9 +145,9 @@ available; otherwise the connection remains plain HTTP.
 bHTTP‑Streams is byte‑stream oriented and is not carried directly within
 HTTP/2 or HTTP/3 request streams.  Integration options:
 
-* **Extended CONNECT WebSocket** — HTTP/2 \[@RFC8441] / HTTP/3 \[@RFC9220]; the
+* **Extended CONNECT WebSocket** — HTTP/2 {{RFC8441}} / HTTP/3 {{RFC9220}}; the
   resulting WebSocket stream then uses the WebSocket binding.
-* **QUIC application stream** — if the connection’s ALPN is `bhttp/1`, either
+* **QUIC application stream** — if the connection's ALPN is `bhttp/1`, either
   peer may open a non‑HTTP QUIC stream and run the Generic‑Stream binding.
 
 # Error Handling
@@ -198,14 +176,9 @@ security mechanisms.  Standard HTTP authentication remains unchanged.
 | ----------- | ------------- |
 | bhttp/1     | This document |
 
-# References
-
-{\:references}
-
-\--- back
+---
 
 # Acknowledgments
-
-{\:numbered="false"}
+{:numbered="false"}
 
 The author thanks the HTTPBIS working‑group members for their feedback.
