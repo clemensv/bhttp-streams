@@ -1,0 +1,300 @@
+
+
+
+
+WG Working Group                                              Y. N. Here
+Internet-Draft                                    Your Organization Here
+Intended status: Informational                               31 May 2025
+Expires: 2 December 2025
+
+
+                    Bi-directional HTTP over Streams
+                      draft-vasters-bhttp-streams
+
+Abstract
+
+   _Bi-directional HTTP over Streams_ (bHTTP-Streams) defines a minimal
+   framing mechanism that enables both endpoints of a single,
+   long-lived, reliable byte stream to exchange HTTP/1.1 messages in
+   either direction.  The framing layer does not alter HTTP semantics
+   and introduces no new methods, headers, or status codes.  Two
+   normative transport bindings are specified: WebSocket and raw TCP.  A
+   Generic-Stream profile reuses the TCP binding for any ordered
+   full-duplex byte stream.  Optional discovery facilities allow
+   endpoints to upgrade to bHTTP-Streams; otherwise the connection
+   remains plain HTTP.
+
+About This Document
+
+   This note is to be removed before publishing as an RFC.
+
+   The latest revision of this draft can be found at
+   https://example.com/LATEST.  Status information for this document may
+   be found at https://datatracker.ietf.org/doc/draft-vasters-bhttp/.
+
+   Discussion of this document takes place on the WG Working Group
+   mailing list (mailto:WG@example.com), which is archived at
+   https://example.com/WG.
+
+   Source for this draft and an issue tracker can be found at
+   https://github.com/USER/REPO.
+
+Status of This Memo
+
+   This Internet-Draft is submitted in full conformance with the
+   provisions of BCP 78 and BCP 79.
+
+   Internet-Drafts are working documents of the Internet Engineering
+   Task Force (IETF).  Note that other groups may also distribute
+   working documents as Internet-Drafts.  The list of current Internet-
+   Drafts is at https://datatracker.ietf.org/drafts/current/.
+
+   Internet-Drafts are draft documents valid for a maximum of six months
+   and may be updated, replaced, or obsoleted by other documents at any
+   time.  It is inappropriate to use Internet-Drafts as reference
+   material or to cite them other than as "work in progress."
+
+   This Internet-Draft will expire on 2 December 2025.
+
+Copyright Notice
+
+   Copyright (c) 2025 IETF Trust and the persons identified as the
+   document authors.  All rights reserved.
+
+   This document is subject to BCP 78 and the IETF Trust's Legal
+   Provisions Relating to IETF Documents (https://trustee.ietf.org/
+   license-info) in effect on the date of publication of this document.
+   Please review these documents carefully, as they describe your rights
+   and restrictions with respect to this document.  Code Components
+   extracted from this document must include Revised BSD License text as
+   described in Section 4.e of the Trust Legal Provisions and are
+   provided without warranty as described in the Revised BSD License.
+
+Table of Contents
+
+   1.  Introduction
+   2.  Conventions and Definitions
+   3.  Message Model
+   4.  Frame Format
+     4.1.  Fixed-Length Bodies
+     4.2.  Chunked Bodies
+   5.  Transport Bindings
+     5.1.  WebSocket Binding
+     5.2.  TCP Binding
+     5.3.  Generic-Stream Binding
+   6.  Capability Advertisement and Optional Upgrade
+   7.  Use with HTTP/2 and HTTP/3
+   8.  Error Handling
+   9.  Security Considerations
+   10. IANA Considerations
+     10.1.  WebSocket Subprotocol Registration
+     10.2.  ALPN Registration
+   11. References
+     11.1.  Normative References
+     11.2.  Informative References
+   Acknowledgments
+   Author's Address
+
+1.  Introduction
+
+   HTTP's traditional client-server model restricts request initiation
+   to one side of the connection.  Modern agent and server-to-server
+   workflows require a symmetric model where either peer can originate
+   requests.  bHTTP-Streams accomplishes this by borrowing WebSocket's
+   frame structure while retaining unaltered HTTP/1.1 semantics
+   [RFC9112].
+
+   The goal mirrors HTTP/2 and HTTP/3: replace only the connection/
+   framing layer while leaving the semantics untouched.  Compared with
+   HTTP/2 multiplexing, bHTTP-Streams remains strictly FIFO per
+   direction and avoids stream IDs, providing a lowest-friction upgrade
+   path for simple bidirectional scenarios.
+
+2.  Conventions and Definitions
+
+   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+   "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and
+   "OPTIONAL" in this document are to be interpreted as described in
+   BCP 14 [RFC2119] [RFC8174] when, and only when, they appear in all
+   capitals, as shown here.
+
+   _Plain HTTP mode_ — classic request–response over HTTP/1.1.
+
+   _bHTTP mode_ — operation after successful upgrade to bHTTP-Streams.
+
+3.  Message Model
+
+   A complete HTTP message consists of
+
+   *  a *header block*: request-line or status-line plus headers, UTF-8
+      encoded, terminated by CRLF CRLF;
+
+   *  a *body* indicated by either Content-Length or Transfer-Encoding:
+      chunked.
+
+4.  Frame Format
+
+   bHTTP-Streams reuses the data frame structure of WebSocket [RFC6455]
+   §5 with these constraints:
+
+   *  Masking is never applied.
+
+   *  FIN bit MUST be 1 (no fragmentation).
+
+   *  Opcodes permitted: 0x1 (text), 0x2 (binary).
+
+   *  Control opcodes 0x8–0xF MUST NOT appear.
+
+   *  Payload-length encoding (7-bit/16-bit/64-bit) is unchanged.
+
+4.1.  Fixed-Length Bodies
+
+   If Content-Length is present, the body is conveyed in *one* binary
+   frame of that length.  Content-Length: 0 omits the binary frame.
+
+4.2.  Chunked Bodies
+
+   For Transfer-Encoding: chunked, the body is a sequence of binary
+   frames followed by a zero-length final chunk.  An optional trailer
+   section MAY be sent in one text frame immediately after the final
+   chunk, formatted per [RFC9112] §6.5.
+
+5.  Transport Bindings
+
+5.1.  WebSocket Binding
+
+   Upgrade request MUST include Sec-WebSocket-Protocol: bhttp-streams;
+   the server MUST echo the token.  Header block → text frame, body →
+   binary frame(s), trailers → text frame.
+
+5.2.  TCP Binding
+
+   The same frame layout runs directly on a raw TCP connection; no
+   WebSocket handshake, masking, or control frames.
+
+5.3.  Generic-Stream Binding
+
+   Any full-duplex, ordered byte stream (e.g., TLS, QUIC application
+   stream, UNIX domain socket) can carry the TCP binding unmodified.
+
+6.  Capability Advertisement and Optional Upgrade
+
+   Endpoints MAY advertise bHTTP-Streams via one or more of:
+
+   *  WebSocket sub-protocol bhttp-streams;
+
+   *  TLS ALPN token bhttp/1;
+
+   *  Upgrade: bhttp-streams header;
+
+   *  Alt-Svc: bhttp="…" record [RFC7838].
+
+   If the client elects to upgrade, bidirectional request initiation
+   becomes available; otherwise the connection remains plain HTTP.
+
+7.  Use with HTTP/2 and HTTP/3
+
+   bHTTP-Streams is byte-stream oriented and is not carried directly
+   within HTTP/2 or HTTP/3 request streams.  Integration options:
+
+   *  *Extended CONNECT WebSocket* — HTTP/2 [RFC8441] / HTTP/3
+      [RFC9220]; the resulting WebSocket stream then uses the WebSocket
+      binding.
+
+   *  *QUIC application stream* — if the connection's ALPN is bhttp/1,
+      either peer may open a non-HTTP QUIC stream and run the
+      Generic-Stream binding.
+
+8.  Error Handling
+
+   *  Protocol violations (invalid opcode, masking, duplicate
+      Content-Length, etc.) → abort connection.
+
+   *  Application errors are reported with normal HTTP status codes.
+
+9.  Security Considerations
+
+   Confidentiality and integrity are provided by the underlying
+   transport (e.g., TLS).  When operating over clear-text TCP, users
+   SHOULD employ higher-layer security mechanisms.  Standard HTTP
+   authentication remains unchanged.
+
+10.  IANA Considerations
+
+10.1.  WebSocket Subprotocol Registration
+
+                     +===============+===============+
+                     | Subprotocol   | Reference     |
+                     +===============+===============+
+                     | bhttp-streams | This document |
+                     +---------------+---------------+
+
+                                  Table 1
+
+10.2.  ALPN Registration
+
+                      +=============+===============+
+                      | Protocol ID | Reference     |
+                      +=============+===============+
+                      | bhttp/1     | This document |
+                      +-------------+---------------+
+
+                                  Table 2
+
+11.  References
+
+11.1.  Normative References
+
+   [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
+              Requirement Levels", BCP 14, RFC 2119,
+              DOI 10.17487/RFC2119, March 1997,
+              <https://www.rfc-editor.org/rfc/rfc2119>.
+
+   [RFC6455]  Fette, I. and A. Melnikov, "The WebSocket Protocol",
+              RFC 6455, DOI 10.17487/RFC6455, December 2011,
+              <https://www.rfc-editor.org/rfc/rfc6455>.
+
+   [RFC7838]  Nottingham, M., McManus, P., and J. Reschke, "HTTP
+              Alternative Services", RFC 7838, DOI 10.17487/RFC7838,
+              April 2016, <https://www.rfc-editor.org/rfc/rfc7838>.
+
+   [RFC8174]  Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC
+              2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174,
+              May 2017, <https://www.rfc-editor.org/rfc/rfc8174>.
+
+   [RFC8441]  McManus, P., "Bootstrapping WebSockets with HTTP/2",
+              RFC 8441, DOI 10.17487/RFC8441, September 2018,
+              <https://www.rfc-editor.org/rfc/rfc8441>.
+
+   [RFC9000]  Iyengar, J., Ed. and M. Thomson, Ed., "QUIC: A UDP-Based
+              Multiplexed and Secure Transport", RFC 9000,
+              DOI 10.17487/RFC9000, May 2021,
+              <https://www.rfc-editor.org/rfc/rfc9000>.
+
+   [RFC9112]  Fielding, R., Ed., Nottingham, M., Ed., and J. Reschke,
+              Ed., "HTTP/1.1", STD 99, RFC 9112, DOI 10.17487/RFC9112,
+              June 2022, <https://www.rfc-editor.org/rfc/rfc9112>.
+
+   [RFC9220]  Hamilton, R., "Bootstrapping WebSockets with HTTP/3",
+              RFC 9220, DOI 10.17487/RFC9220, June 2022,
+              <https://www.rfc-editor.org/rfc/rfc9220>.
+
+11.2.  Informative References
+
+   [RFC9113]  Thomson, M., Ed. and C. Benfield, Ed., "HTTP/2", RFC 9113,
+              DOI 10.17487/RFC9113, June 2022,
+              <https://www.rfc-editor.org/rfc/rfc9113>.
+
+   [RFC9114]  Bishop, M., Ed., "HTTP/3", RFC 9114, DOI 10.17487/RFC9114,
+              June 2022, <https://www.rfc-editor.org/rfc/rfc9114>.
+
+Acknowledgments
+
+   The author thanks the HTTPBIS working-group members for their
+   feedback.
+
+Author's Address
+
+   Your Name Here
+   Your Organization Here
+   Email: your.email@example.com

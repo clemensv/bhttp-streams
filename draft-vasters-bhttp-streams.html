@@ -4,16 +4,24 @@
 <meta charset="utf-8">
 <meta content="Common,Latin" name="scripts">
 <meta content="initial-scale=1.0" name="viewport">
-<title>TODO - Your title</title>
+<title>Bi‑directional HTTP over Streams</title>
 <meta content="Your Name Here" name="author">
 <meta content="
-       TODO Abstract 
+       Bi‑directional HTTP over Streams  (bHTTP‑Streams) defines a minimal framing
+mechanism that enables both endpoints of a single, long‑lived, reliable byte
+stream to exchange HTTP/1.1 messages in either direction.  The framing layer
+does not alter HTTP semantics and introduces no new methods, headers, or
+status codes.  Two normative transport bindings are specified: WebSocket and
+raw TCP.  A Generic‑Stream profile reuses the TCP binding for any ordered
+full‑duplex byte stream.  Optional discovery facilities allow endpoints to
+upgrade to bHTTP‑Streams; otherwise the connection remains plain HTTP. 
     " name="description">
 <meta content="xml2rfc 3.28.1" name="generator">
-<meta content="next generation" name="keyword">
-<meta content="unicorn" name="keyword">
-<meta content="sparkling distributed ledger" name="keyword">
-<meta content="draft-todo-yourname-protocol-latest" name="ietf.draft">
+<meta content="bidirectional http" name="keyword">
+<meta content="websocket" name="keyword">
+<meta content="stream framing" name="keyword">
+<meta content="agent communication" name="keyword">
+<meta content="draft-vasters-bhttp-streams" name="ietf.draft">
 <!-- Generator version information:
   xml2rfc 3.28.1
     Python 3.12.10
@@ -29,7 +37,7 @@
     setuptools 70.3.0
     wcwidth 0.2.13
 -->
-<link href="draft-todo-yourname-protocol.xml" rel="alternate" type="application/rfc+xml">
+<link href="draft-vasters-bhttp-streams.xml" rel="alternate" type="application/rfc+xml">
 <link href="#copyright" rel="license">
 <style type="text/css">@font-face {
   font-family: 'Lora';
@@ -1045,7 +1053,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <table class="ears">
 <thead><tr>
 <td class="left">Internet-Draft</td>
-<td class="center">TODO - Abbreviation</td>
+<td class="center">bhttp‑Streams</td>
 <td class="right">May 2025</td>
 </tr></thead>
 <tfoot><tr>
@@ -1060,7 +1068,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <dt class="label-workgroup">Workgroup:</dt>
 <dd class="workgroup">WG Working Group</dd>
 <dt class="label-internet-draft">Internet-Draft:</dt>
-<dd class="internet-draft">draft-todo-yourname-protocol-latest</dd>
+<dd class="internet-draft">draft-vasters-bhttp-streams</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
 <time datetime="2025-05-31" class="published">31 May 2025</time>
@@ -1078,10 +1086,17 @@ svg :is([fill="white"], [fill^="#fff"]) {
 </dd>
 </dl>
 </div>
-<h1 id="title">TODO - Your title</h1>
+<h1 id="title">Bi‑directional HTTP over Streams</h1>
 <section id="section-abstract">
       <h2 id="abstract"><a href="#abstract" class="selfRef">Abstract</a></h2>
-<p id="section-abstract-1">TODO Abstract<a href="#section-abstract-1" class="pilcrow">¶</a></p>
+<p id="section-abstract-1"><em>Bi‑directional HTTP over Streams</em> (bHTTP‑Streams) defines a minimal framing
+mechanism that enables both endpoints of a single, long‑lived, reliable byte
+stream to exchange HTTP/1.1 messages in either direction.  The framing layer
+does not alter HTTP semantics and introduces no new methods, headers, or
+status codes.  Two normative transport bindings are specified: WebSocket and
+raw TCP.  A Generic‑Stream profile reuses the TCP binding for any ordered
+full‑duplex byte stream.  Optional discovery facilities allow endpoints to
+upgrade to bHTTP‑Streams; otherwise the connection remains plain HTTP.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
 </section>
 <section class="note rfcEditorRemove" id="section-note.1">
       <h2 id="name-about-this-document">
@@ -1090,7 +1105,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <p id="section-note.1-1">This note is to be removed before publishing as an RFC.<a href="#section-note.1-1" class="pilcrow">¶</a></p>
 <p id="section-note.1-2">
         The latest revision of this draft can be found at <span><a href="https://example.com/LATEST">https://example.com/LATEST</a></span>.
-        Status information for this document may be found at <span><a href="https://datatracker.ietf.org/doc/draft-todo-yourname-protocol/">https://datatracker.ietf.org/doc/draft-todo-yourname-protocol/</a></span>.<a href="#section-note.1-2" class="pilcrow">¶</a></p>
+        Status information for this document may be found at <span><a href="https://datatracker.ietf.org/doc/draft-vasters-bhttp/">https://datatracker.ietf.org/doc/draft-vasters-bhttp/</a></span>.<a href="#section-note.1-2" class="pilcrow">¶</a></p>
 <p id="section-note.1-3">
         Discussion of this document takes place on the
         WG Working Group mailing list (<span><a href="mailto:WG@example.com">mailto:WG@example.com</a></span>),
@@ -1153,19 +1168,72 @@ svg :is([fill="white"], [fill^="#fff"]) {
             <p id="section-toc.1-1.2.1" class="keepWithNext"><a href="#section-2" class="auto internal xref">2</a>.  <a href="#name-conventions-and-definitions" class="internal xref">Conventions and Definitions</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3">
-            <p id="section-toc.1-1.3.1" class="keepWithNext"><a href="#section-3" class="auto internal xref">3</a>.  <a href="#name-security-considerations" class="internal xref">Security Considerations</a></p>
+            <p id="section-toc.1-1.3.1" class="keepWithNext"><a href="#section-3" class="auto internal xref">3</a>.  <a href="#name-message-model" class="internal xref">Message Model</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4">
-            <p id="section-toc.1-1.4.1"><a href="#section-4" class="auto internal xref">4</a>.  <a href="#name-iana-considerations" class="internal xref">IANA Considerations</a></p>
+            <p id="section-toc.1-1.4.1"><a href="#section-4" class="auto internal xref">4</a>.  <a href="#name-frame-format" class="internal xref">Frame Format</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.1">
+                <p id="section-toc.1-1.4.2.1.1"><a href="#section-4.1" class="auto internal xref">4.1</a>.  <a href="#name-fixedlength-bodies" class="internal xref">Fixed‑Length Bodies</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.2">
+                <p id="section-toc.1-1.4.2.2.1"><a href="#section-4.2" class="auto internal xref">4.2</a>.  <a href="#name-chunked-bodies" class="internal xref">Chunked Bodies</a></p>
+</li>
+            </ul>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5">
-            <p id="section-toc.1-1.5.1"><a href="#section-5" class="auto internal xref">5</a>.  <a href="#name-normative-references" class="internal xref">Normative References</a></p>
+            <p id="section-toc.1-1.5.1"><a href="#section-5" class="auto internal xref">5</a>.  <a href="#name-transport-bindings" class="internal xref">Transport Bindings</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.1">
+                <p id="section-toc.1-1.5.2.1.1"><a href="#section-5.1" class="auto internal xref">5.1</a>.  <a href="#name-websocket-binding" class="internal xref">WebSocket Binding</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.2">
+                <p id="section-toc.1-1.5.2.2.1"><a href="#section-5.2" class="auto internal xref">5.2</a>.  <a href="#name-tcp-binding" class="internal xref">TCP Binding</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.3">
+                <p id="section-toc.1-1.5.2.3.1"><a href="#section-5.3" class="auto internal xref">5.3</a>.  <a href="#name-genericstream-binding" class="internal xref">Generic‑Stream Binding</a></p>
+</li>
+            </ul>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6">
-            <p id="section-toc.1-1.6.1"><a href="#appendix-A" class="auto internal xref"></a><a href="#name-acknowledgments" class="internal xref">Acknowledgments</a></p>
+            <p id="section-toc.1-1.6.1"><a href="#section-6" class="auto internal xref">6</a>.  <a href="#name-capability-advertisement-an" class="internal xref">Capability Advertisement and Optional Upgrade</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7">
-            <p id="section-toc.1-1.7.1"><a href="#appendix-B" class="auto internal xref"></a><a href="#name-authors-address" class="internal xref">Author's Address</a></p>
+            <p id="section-toc.1-1.7.1"><a href="#section-7" class="auto internal xref">7</a>.  <a href="#name-use-with-http-2-and-http-3" class="internal xref">Use with HTTP/2 and HTTP/3</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8">
+            <p id="section-toc.1-1.8.1"><a href="#section-8" class="auto internal xref">8</a>.  <a href="#name-error-handling" class="internal xref">Error Handling</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9">
+            <p id="section-toc.1-1.9.1"><a href="#section-9" class="auto internal xref">9</a>.  <a href="#name-security-considerations" class="internal xref">Security Considerations</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10">
+            <p id="section-toc.1-1.10.1"><a href="#section-10" class="auto internal xref">10</a>. <a href="#name-iana-considerations" class="internal xref">IANA Considerations</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10.2.1">
+                <p id="section-toc.1-1.10.2.1.1"><a href="#section-10.1" class="auto internal xref">10.1</a>.  <a href="#name-websocket-subprotocol-regis" class="internal xref">WebSocket Subprotocol Registration</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10.2.2">
+                <p id="section-toc.1-1.10.2.2.1"><a href="#section-10.2" class="auto internal xref">10.2</a>.  <a href="#name-alpn-registration" class="internal xref">ALPN Registration</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11">
+            <p id="section-toc.1-1.11.1"><a href="#section-11" class="auto internal xref">11</a>. <a href="#name-references" class="internal xref">References</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11.2.1">
+                <p id="section-toc.1-1.11.2.1.1"><a href="#section-11.1" class="auto internal xref">11.1</a>.  <a href="#name-normative-references" class="internal xref">Normative References</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11.2.2">
+                <p id="section-toc.1-1.11.2.2.1"><a href="#section-11.2" class="auto internal xref">11.2</a>.  <a href="#name-informative-references" class="internal xref">Informative References</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.12">
+            <p id="section-toc.1-1.12.1"><a href="#appendix-A" class="auto internal xref"></a><a href="#name-acknowledgments" class="internal xref">Acknowledgments</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.13">
+            <p id="section-toc.1-1.13.1"><a href="#appendix-B" class="auto internal xref"></a><a href="#name-authors-address" class="internal xref">Author's Address</a></p>
 </li>
         </ul>
 </nav>
@@ -1176,7 +1244,15 @@ svg :is([fill="white"], [fill^="#fff"]) {
       <h2 id="name-introduction">
 <a href="#section-1" class="section-number selfRef">1. </a><a href="#name-introduction" class="section-name selfRef">Introduction</a>
       </h2>
-<p id="section-1-1">TODO Introduction<a href="#section-1-1" class="pilcrow">¶</a></p>
+<p id="section-1-1">HTTP's traditional client‑server model restricts request initiation to one
+side of the connection.  Modern agent and server‑to‑server workflows require a
+symmetric model where either peer can originate requests.  bHTTP‑Streams
+accomplishes this by borrowing WebSocket's frame structure while retaining
+unaltered HTTP/1.1 semantics <span>[<a href="#RFC9112" class="cite xref">RFC9112</a>]</span>.<a href="#section-1-1" class="pilcrow">¶</a></p>
+<p id="section-1-2">The goal mirrors HTTP/2 and HTTP/3: replace only the connection/framing layer
+while leaving the semantics untouched.  Compared with HTTP/2 multiplexing,
+bHTTP‑Streams remains strictly FIFO per direction and avoids stream IDs,
+providing a lowest‑friction upgrade path for simple bidirectional scenarios.<a href="#section-1-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="conventions-and-definitions">
@@ -1188,39 +1264,292 @@ svg :is([fill="white"], [fill^="#fff"]) {
 "<span class="bcp14">MAY</span>", and "<span class="bcp14">OPTIONAL</span>" in this document are to be interpreted as
 described in BCP 14 <span>[<a href="#RFC2119" class="cite xref">RFC2119</a>]</span> <span>[<a href="#RFC8174" class="cite xref">RFC8174</a>]</span> when, and only when, they
 appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶</a></p>
+<p id="section-2-2"><em>Plain HTTP mode</em> — classic request–response over HTTP/1.1.<a href="#section-2-2" class="pilcrow">¶</a></p>
+<p id="section-2-3"><em>bHTTP mode</em> — operation after successful upgrade to bHTTP‑Streams.<a href="#section-2-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="message-model">
+<section id="section-3">
+      <h2 id="name-message-model">
+<a href="#section-3" class="section-number selfRef">3. </a><a href="#name-message-model" class="section-name selfRef">Message Model</a>
+      </h2>
+<p id="section-3-1">A complete HTTP message consists of<a href="#section-3-1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-3-2.1">
+          <p id="section-3-2.1.1">a <strong>header block</strong>: request‑line or status‑line plus headers, UTF‑8 encoded,
+terminated by CRLF CRLF;<a href="#section-3-2.1.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-3-2.2">
+          <p id="section-3-2.2.1">a <strong>body</strong> indicated by either <code>Content‑Length</code> or
+<code>Transfer‑Encoding: chunked</code>.<a href="#section-3-2.2.1" class="pilcrow">¶</a></p>
+</li>
+      </ul>
+</section>
+</div>
+<div id="frame-format">
+<section id="section-4">
+      <h2 id="name-frame-format">
+<a href="#section-4" class="section-number selfRef">4. </a><a href="#name-frame-format" class="section-name selfRef">Frame Format</a>
+      </h2>
+<p id="section-4-1">bHTTP‑Streams reuses the data frame structure of WebSocket <span>[<a href="#RFC6455" class="cite xref">RFC6455</a>]</span> §5 with
+these constraints:<a href="#section-4-1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-4-2.1">
+          <p id="section-4-2.1.1">Masking is never applied.<a href="#section-4-2.1.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-4-2.2">
+          <p id="section-4-2.2.1">FIN bit <span class="bcp14">MUST</span> be 1 (no fragmentation).<a href="#section-4-2.2.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-4-2.3">
+          <p id="section-4-2.3.1">Opcodes permitted: <code>0x1</code> (text), <code>0x2</code> (binary).<a href="#section-4-2.3.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-4-2.4">
+          <p id="section-4-2.4.1">Control opcodes <code>0x8</code>–<code>0xF</code> <span class="bcp14">MUST NOT</span> appear.<a href="#section-4-2.4.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-4-2.5">
+          <p id="section-4-2.5.1">Payload‑length encoding (7‑bit/16‑bit/64‑bit) is unchanged.<a href="#section-4-2.5.1" class="pilcrow">¶</a></p>
+</li>
+      </ul>
+<div id="fixedlength-bodies">
+<section id="section-4.1">
+        <h3 id="name-fixedlength-bodies">
+<a href="#section-4.1" class="section-number selfRef">4.1. </a><a href="#name-fixedlength-bodies" class="section-name selfRef">Fixed‑Length Bodies</a>
+        </h3>
+<p id="section-4.1-1">If <code>Content‑Length</code> is present, the body is conveyed in <strong>one</strong> binary frame of
+that length.  <code>Content‑Length: 0</code> omits the binary frame.<a href="#section-4.1-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="chunked-bodies">
+<section id="section-4.2">
+        <h3 id="name-chunked-bodies">
+<a href="#section-4.2" class="section-number selfRef">4.2. </a><a href="#name-chunked-bodies" class="section-name selfRef">Chunked Bodies</a>
+        </h3>
+<p id="section-4.2-1">For <code>Transfer‑Encoding: chunked</code>, the body is a sequence of binary frames
+followed by a zero‑length final chunk.  An optional trailer section <span class="bcp14">MAY</span> be
+sent in one text frame immediately after the final chunk, formatted per
+<span>[<a href="#RFC9112" class="cite xref">RFC9112</a>]</span> §6.5.<a href="#section-4.2-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+<div id="transport-bindings">
+<section id="section-5">
+      <h2 id="name-transport-bindings">
+<a href="#section-5" class="section-number selfRef">5. </a><a href="#name-transport-bindings" class="section-name selfRef">Transport Bindings</a>
+      </h2>
+<div id="websocket-binding">
+<section id="section-5.1">
+        <h3 id="name-websocket-binding">
+<a href="#section-5.1" class="section-number selfRef">5.1. </a><a href="#name-websocket-binding" class="section-name selfRef">WebSocket Binding</a>
+        </h3>
+<p id="section-5.1-1">Upgrade request <span class="bcp14">MUST</span> include <code>Sec‑WebSocket‑Protocol: bhttp-streams</code>; the server
+<span class="bcp14">MUST</span> echo the token.  Header block → text frame, body → binary frame(s),
+trailers → text frame.<a href="#section-5.1-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="tcp-binding">
+<section id="section-5.2">
+        <h3 id="name-tcp-binding">
+<a href="#section-5.2" class="section-number selfRef">5.2. </a><a href="#name-tcp-binding" class="section-name selfRef">TCP Binding</a>
+        </h3>
+<p id="section-5.2-1">The same frame layout runs directly on a raw TCP connection; no WebSocket
+handshake, masking, or control frames.<a href="#section-5.2-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="genericstream-binding">
+<section id="section-5.3">
+        <h3 id="name-genericstream-binding">
+<a href="#section-5.3" class="section-number selfRef">5.3. </a><a href="#name-genericstream-binding" class="section-name selfRef">Generic‑Stream Binding</a>
+        </h3>
+<p id="section-5.3-1">Any full‑duplex, ordered byte stream (e.g., TLS, QUIC application stream,
+UNIX domain socket) can carry the TCP binding unmodified.<a href="#section-5.3-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+<div id="capability-advertisement-and-optional-upgrade">
+<section id="section-6">
+      <h2 id="name-capability-advertisement-an">
+<a href="#section-6" class="section-number selfRef">6. </a><a href="#name-capability-advertisement-an" class="section-name selfRef">Capability Advertisement and Optional Upgrade</a>
+      </h2>
+<p id="section-6-1">Endpoints <span class="bcp14">MAY</span> advertise bHTTP‑Streams via one or more of:<a href="#section-6-1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-6-2.1">
+          <p id="section-6-2.1.1">WebSocket sub‑protocol <code>bhttp-streams</code>;<a href="#section-6-2.1.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-6-2.2">
+          <p id="section-6-2.2.1">TLS ALPN token <code>bhttp/1</code>;<a href="#section-6-2.2.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-6-2.3">
+          <p id="section-6-2.3.1"><code>Upgrade: bhttp-streams</code> header;<a href="#section-6-2.3.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-6-2.4">
+          <p id="section-6-2.4.1"><code>Alt‑Svc: bhttp="…"</code> record <span>[<a href="#RFC7838" class="cite xref">RFC7838</a>]</span>.<a href="#section-6-2.4.1" class="pilcrow">¶</a></p>
+</li>
+      </ul>
+<p id="section-6-3">If the client elects to upgrade, bidirectional request initiation becomes
+available; otherwise the connection remains plain HTTP.<a href="#section-6-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="use-with-http2-and-http3">
+<section id="section-7">
+      <h2 id="name-use-with-http-2-and-http-3">
+<a href="#section-7" class="section-number selfRef">7. </a><a href="#name-use-with-http-2-and-http-3" class="section-name selfRef">Use with HTTP/2 and HTTP/3</a>
+      </h2>
+<p id="section-7-1">bHTTP‑Streams is byte‑stream oriented and is not carried directly within
+HTTP/2 or HTTP/3 request streams.  Integration options:<a href="#section-7-1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-7-2.1">
+          <p id="section-7-2.1.1"><strong>Extended CONNECT WebSocket</strong> — HTTP/2 <span>[<a href="#RFC8441" class="cite xref">RFC8441</a>]</span> / HTTP/3 <span>[<a href="#RFC9220" class="cite xref">RFC9220</a>]</span>; the
+resulting WebSocket stream then uses the WebSocket binding.<a href="#section-7-2.1.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-7-2.2">
+          <p id="section-7-2.2.1"><strong>QUIC application stream</strong> — if the connection's ALPN is <code>bhttp/1</code>, either
+peer may open a non‑HTTP QUIC stream and run the Generic‑Stream binding.<a href="#section-7-2.2.1" class="pilcrow">¶</a></p>
+</li>
+      </ul>
+</section>
+</div>
+<div id="error-handling">
+<section id="section-8">
+      <h2 id="name-error-handling">
+<a href="#section-8" class="section-number selfRef">8. </a><a href="#name-error-handling" class="section-name selfRef">Error Handling</a>
+      </h2>
+<ul class="normal">
+<li class="normal" id="section-8-1.1">
+          <p id="section-8-1.1.1">Protocol violations (invalid opcode, masking, duplicate <code>Content‑Length</code>,
+etc.) → abort connection.<a href="#section-8-1.1.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-8-1.2">
+          <p id="section-8-1.2.1">Application errors are reported with normal HTTP status codes.<a href="#section-8-1.2.1" class="pilcrow">¶</a></p>
+</li>
+      </ul>
 </section>
 </div>
 <div id="security-considerations">
-<section id="section-3">
+<section id="section-9">
       <h2 id="name-security-considerations">
-<a href="#section-3" class="section-number selfRef">3. </a><a href="#name-security-considerations" class="section-name selfRef">Security Considerations</a>
+<a href="#section-9" class="section-number selfRef">9. </a><a href="#name-security-considerations" class="section-name selfRef">Security Considerations</a>
       </h2>
-<p id="section-3-1">TODO Security<a href="#section-3-1" class="pilcrow">¶</a></p>
+<p id="section-9-1">Confidentiality and integrity are provided by the underlying transport (e.g.,
+TLS).  When operating over clear‑text TCP, users <span class="bcp14">SHOULD</span> employ higher‑layer
+security mechanisms.  Standard HTTP authentication remains unchanged.<a href="#section-9-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="iana-considerations">
-<section id="section-4">
+<section id="section-10">
       <h2 id="name-iana-considerations">
-<a href="#section-4" class="section-number selfRef">4. </a><a href="#name-iana-considerations" class="section-name selfRef">IANA Considerations</a>
+<a href="#section-10" class="section-number selfRef">10. </a><a href="#name-iana-considerations" class="section-name selfRef">IANA Considerations</a>
       </h2>
-<p id="section-4-1">This document has no IANA actions.<a href="#section-4-1" class="pilcrow">¶</a></p>
+<div id="websocket-subprotocol-registration">
+<section id="section-10.1">
+        <h3 id="name-websocket-subprotocol-regis">
+<a href="#section-10.1" class="section-number selfRef">10.1. </a><a href="#name-websocket-subprotocol-regis" class="section-name selfRef">WebSocket Subprotocol Registration</a>
+        </h3>
+<table class="center" id="table-1">
+          <caption><a href="#table-1" class="selfRef">Table 1</a></caption>
+<thead>
+            <tr>
+              <th class="text-left" rowspan="1" colspan="1">Subprotocol</th>
+              <th class="text-left" rowspan="1" colspan="1">Reference</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">bhttp-streams</td>
+              <td class="text-left" rowspan="1" colspan="1">This document</td>
+            </tr>
+          </tbody>
+        </table>
 </section>
 </div>
-<div id="sec-normative-references">
-<section id="section-5">
-      <h2 id="name-normative-references">
-<a href="#section-5" class="section-number selfRef">5. </a><a href="#name-normative-references" class="section-name selfRef">Normative References</a>
+<div id="alpn-registration">
+<section id="section-10.2">
+        <h3 id="name-alpn-registration">
+<a href="#section-10.2" class="section-number selfRef">10.2. </a><a href="#name-alpn-registration" class="section-name selfRef">ALPN Registration</a>
+        </h3>
+<table class="center" id="table-2">
+          <caption><a href="#table-2" class="selfRef">Table 2</a></caption>
+<thead>
+            <tr>
+              <th class="text-left" rowspan="1" colspan="1">Protocol ID</th>
+              <th class="text-left" rowspan="1" colspan="1">Reference</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">bhttp/1</td>
+              <td class="text-left" rowspan="1" colspan="1">This document</td>
+            </tr>
+          </tbody>
+        </table>
+</section>
+</div>
+</section>
+</div>
+<div id="sec-combined-references">
+<section id="section-11">
+      <h2 id="name-references">
+<a href="#section-11" class="section-number selfRef">11. </a><a href="#name-references" class="section-name selfRef">References</a>
       </h2>
+<div id="sec-normative-references">
+<section id="section-11.1">
+        <h3 id="name-normative-references">
+<a href="#section-11.1" class="section-number selfRef">11.1. </a><a href="#name-normative-references" class="section-name selfRef">Normative References</a>
+        </h3>
 <dl class="references">
 <dt id="RFC2119">[RFC2119]</dt>
-      <dd>
+        <dd>
 <span class="refAuthor">Bradner, S.</span>, <span class="refTitle">"Key words for use in RFCs to Indicate Requirement Levels"</span>, <span class="seriesInfo">BCP 14</span>, <span class="seriesInfo">RFC 2119</span>, <span class="seriesInfo">DOI 10.17487/RFC2119</span>, <time datetime="1997-03" class="refDate">March 1997</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc2119">https://www.rfc-editor.org/rfc/rfc2119</a>&gt;</span>. </dd>
 <dd class="break"></dd>
+<dt id="RFC6455">[RFC6455]</dt>
+        <dd>
+<span class="refAuthor">Fette, I.</span> and <span class="refAuthor">A. Melnikov</span>, <span class="refTitle">"The WebSocket Protocol"</span>, <span class="seriesInfo">RFC 6455</span>, <span class="seriesInfo">DOI 10.17487/RFC6455</span>, <time datetime="2011-12" class="refDate">December 2011</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc6455">https://www.rfc-editor.org/rfc/rfc6455</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC7838">[RFC7838]</dt>
+        <dd>
+<span class="refAuthor">Nottingham, M.</span>, <span class="refAuthor">McManus, P.</span>, and <span class="refAuthor">J. Reschke</span>, <span class="refTitle">"HTTP Alternative Services"</span>, <span class="seriesInfo">RFC 7838</span>, <span class="seriesInfo">DOI 10.17487/RFC7838</span>, <time datetime="2016-04" class="refDate">April 2016</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc7838">https://www.rfc-editor.org/rfc/rfc7838</a>&gt;</span>. </dd>
+<dd class="break"></dd>
 <dt id="RFC8174">[RFC8174]</dt>
-    <dd>
+        <dd>
 <span class="refAuthor">Leiba, B.</span>, <span class="refTitle">"Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words"</span>, <span class="seriesInfo">BCP 14</span>, <span class="seriesInfo">RFC 8174</span>, <span class="seriesInfo">DOI 10.17487/RFC8174</span>, <time datetime="2017-05" class="refDate">May 2017</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8174">https://www.rfc-editor.org/rfc/rfc8174</a>&gt;</span>. </dd>
 <dd class="break"></dd>
+<dt id="RFC8441">[RFC8441]</dt>
+        <dd>
+<span class="refAuthor">McManus, P.</span>, <span class="refTitle">"Bootstrapping WebSockets with HTTP/2"</span>, <span class="seriesInfo">RFC 8441</span>, <span class="seriesInfo">DOI 10.17487/RFC8441</span>, <time datetime="2018-09" class="refDate">September 2018</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8441">https://www.rfc-editor.org/rfc/rfc8441</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC9000">[RFC9000]</dt>
+        <dd>
+<span class="refAuthor">Iyengar, J., Ed.</span> and <span class="refAuthor">M. Thomson, Ed.</span>, <span class="refTitle">"QUIC: A UDP-Based Multiplexed and Secure Transport"</span>, <span class="seriesInfo">RFC 9000</span>, <span class="seriesInfo">DOI 10.17487/RFC9000</span>, <time datetime="2021-05" class="refDate">May 2021</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9000">https://www.rfc-editor.org/rfc/rfc9000</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC9112">[RFC9112]</dt>
+        <dd>
+<span class="refAuthor">Fielding, R., Ed.</span>, <span class="refAuthor">Nottingham, M., Ed.</span>, and <span class="refAuthor">J. Reschke, Ed.</span>, <span class="refTitle">"HTTP/1.1"</span>, <span class="seriesInfo">STD 99</span>, <span class="seriesInfo">RFC 9112</span>, <span class="seriesInfo">DOI 10.17487/RFC9112</span>, <time datetime="2022-06" class="refDate">June 2022</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9112">https://www.rfc-editor.org/rfc/rfc9112</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC9220">[RFC9220]</dt>
+      <dd>
+<span class="refAuthor">Hamilton, R.</span>, <span class="refTitle">"Bootstrapping WebSockets with HTTP/3"</span>, <span class="seriesInfo">RFC 9220</span>, <span class="seriesInfo">DOI 10.17487/RFC9220</span>, <time datetime="2022-06" class="refDate">June 2022</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9220">https://www.rfc-editor.org/rfc/rfc9220</a>&gt;</span>. </dd>
+<dd class="break"></dd>
 </dl>
+</section>
+</div>
+<div id="sec-informative-references">
+<section id="section-11.2">
+        <h3 id="name-informative-references">
+<a href="#section-11.2" class="section-number selfRef">11.2. </a><a href="#name-informative-references" class="section-name selfRef">Informative References</a>
+        </h3>
+<dl class="references">
+<dt id="RFC9113">[RFC9113]</dt>
+        <dd>
+<span class="refAuthor">Thomson, M., Ed.</span> and <span class="refAuthor">C. Benfield, Ed.</span>, <span class="refTitle">"HTTP/2"</span>, <span class="seriesInfo">RFC 9113</span>, <span class="seriesInfo">DOI 10.17487/RFC9113</span>, <time datetime="2022-06" class="refDate">June 2022</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9113">https://www.rfc-editor.org/rfc/rfc9113</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC9114">[RFC9114]</dt>
+      <dd>
+<span class="refAuthor">Bishop, M., Ed.</span>, <span class="refTitle">"HTTP/3"</span>, <span class="seriesInfo">RFC 9114</span>, <span class="seriesInfo">DOI 10.17487/RFC9114</span>, <time datetime="2022-06" class="refDate">June 2022</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9114">https://www.rfc-editor.org/rfc/rfc9114</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+</dl>
+</section>
+</div>
 </section>
 </div>
 <div id="acknowledgments">
@@ -1228,7 +1557,7 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
       <h2 id="name-acknowledgments">
 <a href="#name-acknowledgments" class="section-name selfRef">Acknowledgments</a>
       </h2>
-<p id="appendix-A-1">TODO acknowledge.<a href="#appendix-A-1" class="pilcrow">¶</a></p>
+<p id="appendix-A-1">The author thanks the HTTPBIS working‑group members for their feedback.<a href="#appendix-A-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="authors-addresses">
