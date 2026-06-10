@@ -4,8 +4,8 @@
 
 WG Working Group                                              Y. N. Here
 Internet-Draft                                    Your Organization Here
-Intended status: Informational                               31 May 2025
-Expires: 2 December 2025
+Intended status: Informational                              10 June 2026
+Expires: 12 December 2026
 
 
                     Bi-directional HTTP over Streams
@@ -54,11 +54,11 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 2 December 2025.
+   This Internet-Draft will expire on 12 December 2026.
 
 Copyright Notice
 
-   Copyright (c) 2025 IETF Trust and the persons identified as the
+   Copyright (c) 2026 IETF Trust and the persons identified as the
    document authors.  All rights reserved.
 
    This document is subject to BCP 78 and the IETF Trust's Legal
